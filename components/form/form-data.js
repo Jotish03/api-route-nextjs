@@ -14,16 +14,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "../ui/textarea";
 import { useRef } from "react";
+import axios from "axios"; // Import Axios
 
 export function FormData() {
   const emailRef = useRef();
   const feedbackRef = useRef();
 
-  const handleFeedbackButton = (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+  const handleFeedbackButton = async (e) => {
+    e.preventDefault();
     console.log("Handling feedback submission...");
     const emailEntered = emailRef.current.value;
     const feedbackEntered = feedbackRef.current.value;
+
+    const reqBody = { email: emailEntered, text: feedbackEntered };
+
+    try {
+      const response = await axios.post("http://localhost:3000/api", reqBody, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(reqBody);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
   };
 
   return (
@@ -33,21 +48,24 @@ export function FormData() {
         <CardDescription>Your feedback makes us grow bigger</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleFeedbackButton}>
+        <form action="POST" onSubmit={handleFeedbackButton}>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
+                name="email"
                 placeholder="Your email"
                 ref={emailRef}
               />
             </div>
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="feedback">Feedback</Label>
+              <Label htmlFor="text">Feedback</Label>
               <Textarea
-                id="feedback"
+                id="text"
+                type="text"
+                name="text"
                 placeholder="Enter your feedback here"
                 ref={feedbackRef}
               />
